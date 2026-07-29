@@ -1,0 +1,61 @@
+{
+  "alara@gmail.com": {
+    "id": "#9542-9045",
+    "email": "alara@gmail.com",
+    "passwordHash": "46882d9e889a5f991701626aff72463ec23d913e8224ba3085a00933c3dcb589",
+    "displayName": "alara",
+    "avatarColor": "#2dd4bf",
+    "avatarBase64": "",
+    "createdAt": "2026-07-29T14:26:31.0002935+03:00",
+    "pairedPeers": [
+      "#4356-8087"
+    ],
+    "peerAliases": {
+      "#4356-8087": "lara"
+    },
+    "history": [
+      {
+        "filename": "fix_find_replace2.ps1",
+        "direction": "sent",
+        "peerId": "#4356-8087",
+        "peerName": "#4356-8087",
+        "size": 0,
+        "timestamp": "2026-07-29 16:14:39"
+      },
+      {
+        "filename": "text.txt",
+        "direction": "sent",
+        "peerId": "",
+        "peerName": "127.0.0.1:8081",
+        "size": 0,
+        "timestamp": "2026-07-29 15:08:58"
+      },
+      {
+        "filename": "text.txt",
+        "direction": "sent",
+        "peerId": "",
+        "peerName": "127.0.0.1:8081",
+        "size": 0,
+        "timestamp": "2026-07-29 15:08:24"
+      },
+      {
+        "filename": "test_video.mp4",
+        "direction": "sent",
+        "peerId": "",
+        "peerName": "127.0.0.1:8081",
+        "size": 0,
+        "timestamp": "2026-07-29 14:45:10"
+      },
+      {
+        "filename": "Chained_Together_6a610cbc-48ce-48b4-badd-4679bfef24eb.mp4",
+        "direction": "sent",
+        "peerId": "",
+        "peerName": "127.0.0.1:8081",
+        "size": 0,
+        "timestamp": "2026-07-29 14:43:38"
+      }
+    ],
+    "pendingPairRequests": null,
+    "pendingTransferRequests": null
+  }
+}

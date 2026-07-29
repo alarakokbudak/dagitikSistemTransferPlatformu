@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SYNC.P2P — Dağıtık Dosya Transfer Platformu</title>
+    <meta name="description" content="AES-256-GCM şifreli, uçtan uca güvenli P2P dosya transfer sistemi">
+    <link rel="stylesheet" href="styles.css?v=5">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <!-- Toast Notifications -->
+    <div id="toast-container"></div>
+
+    <!-- ═══ AUTH SCREEN ═══ -->
+    <div id="auth-screen" class="auth-screen">
+        <div class="auth-backdrop"></div>
+        <div class="auth-card">
+            <div class="auth-brand">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#b54d4d" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+                </svg>
+                <h1>SYNC<span>.P2P</span></h1>
+            </div>
+            <p class="auth-subtitle">Uçtan uca şifreli dağıtık dosya transferi</p>
+
+            <!-- Register -->
+            <div id="auth-register" class="auth-panel">
+                <div class="input-group">
+                    <label>E-Posta</label>
+                    <input type="email" id="reg-email" class="form-input" placeholder="ornek@email.com">
+                </div>
+                <div class="input-group">
+                    <label>Şifre</label>
+                    <input type="password" id="reg-password" class="form-input" placeholder="En az 6 karakter">
+                </div>
+                <button class="btn-primary btn-lg" onclick="doRegister()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                        <circle cx="8.5" cy="7" r="4" />
+                        <line x1="20" y1="11" x2="20" y2="17" />
+                        <line x1="17" y1="14" x2="23" y2="14" />
+                    </svg>
+                    Kayıt Ol
+                </button>
+                <div class="auth-divider"><span>veya</span></div>
+                <p class="auth-switch-text">Zaten hesabın var mı? <a href="#" onclick="showLogin()">Giriş Yap</a></p>
+            </div>
+
+            <!-- Login -->
+            <div id="auth-login" class="auth-panel" style="display:none;">
+                <div class="input-group">
+                    <label>E-Posta</label>
+                    <input type="email" id="login-email" class="form-input" placeholder="ornek@email.com">
+                </div>
+                <div class="input-group">
+                    <label>Şifre</label>
+                    <input type="password" id="login-password" class="form-input" placeholder="Şifrenizi girin">
+                </div>
+                <button class="btn-primary btn-lg" onclick="doLogin()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                        <polyline points="10 17 15 12 10 7" />
+                        <line x1="15" y1="12" x2="3" y2="12" />
+                    </svg>
+                    Giriş Yap
+                </button>
+                <div class="auth-divider"><span>veya</span></div>
+                <p class="auth-switch-text">Hesabın yok mu? <a href="#" onclick="showRegister()">Kayıt Ol</a></p>
+            </div>
+
+            <!-- Welcome -->
+            <div id="auth-welcome" class="auth-panel" style="display:none;">
+                <div class="welcome-id-display">
+                    <span class="welcome-label">Senin Benzersiz ID'n</span>
+                    <span class="welcome-id" id="welcome-id-text">#0000-0000</span>
+                    <button class="btn-copy" onclick="copyID()">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                        </svg>
+                        Kopyala
+                    </button>
+                </div>
+                <p class="welcome-hint">Bu ID'yi arkadaşlarınla paylaş — seni bu ID ile bulabilirler.</p>
+                <button class="btn-primary btn-lg" onclick="enterApp()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="13 17 18 12 13 7" />
+                        <polyline points="6 17 11 12 6 7" />
+                    </svg>
+                    Platforma Gir
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ MAIN APP ═══ -->
+    <div id="app-shell" class="app-shell" style="display: none;">
+        <!-- Sidebar (Dark) -->
+        <aside class="sidebar">
+            <div class="sidebar-top">
+                <div class="brand">
+                    <div class="brand-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+                        </svg>
+                    </div>
+                    <h1 class="brand-name">SYNC<span>.P2P</span></h1>
+                </div>
+
+                <!-- Profile Mini -->
+                <div class="profile-mini" id="profile-mini">
+                    <div class="profile-avatar" id="profile-avatar">?</div>
+                    <div class="profile-mini-info">
+                        <span class="profile-mini-name" id="profile-mini-name">Yükleniyor...</span>
+                        <span class="profile-mini-id" id="profile-mini-id">#0000-0000</span>
+                    </div>
+                </div>
+
+                <nav class="nav-menu">
+                    <a href="#" class="nav-item active" data-target="dashboard-view">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="3" y="3" width="7" height="7" rx="1" />
+                            <rect x="14" y="3" width="7" height="7" rx="1" />
+                            <rect x="3" y="14" width="7" height="7" rx="1" />
+                            <rect x="14" y="14" width="7" height="7" rx="1" />
+                        </svg>
+                        <span>Ana Panel</span>
+                    </a>
+                    <a href="#" class="nav-item" data-target="folders-view">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                        </svg>
+                        <span>Dosyalar</span>
+                    </a>
+                    <a href="#" class="nav-item" data-target="peers-view">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                            <circle cx="9" cy="7" r="4" />
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                        </svg>
+                        <span>Cihaz Eşleştir</span>
+                    </a>
+                    <a href="#" class="nav-item" data-target="history-view">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                        <span>Transfer Geçmişi</span>
+                    </a>
+                    <a href="#" class="nav-item" data-target="settings-view">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <circle cx="12" cy="12" r="3" />
+                            <path
+                                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                        </svg>
+                        <span>Profil & Ayarlar</span>
+                    </a>
+                </nav>
+            </div>
+
+            <div class="sidebar-bottom">
+                <button class="btn-logout" onclick="doLogout()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                        <polyline points="16 17 21 12 16 7" />
+                        <line x1="21" y1="12" x2="9" y2="12" />
+                    </svg>
+                    <span>Çıkış Yap</span>
+                </button>
+                <div class="connection-badge">
+                    <span class="pulse-dot"></span>
+                    <span>P2P Ağı Aktif</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content (Light) -->
+        <main class="main-area">
+            <header class="top-bar">
+                <div class="top-bar-left">
+                    <h2 class="page-title" id="page-title">Ana Panel</h2>
+                    <p class="page-subtitle" id="page-subtitle">Uçtan uca şifreli dosya senkronizasyonu</p>
+                </div>
+                <div class="top-bar-right" style="position: relative;">
+                    <button class="btn-notifications" id="btn-notifications" onclick="toggleNotifications()">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                        </svg>
+                        <span class="notification-badge" id="notification-badge" style="display: none;">0</span>
+                    </button>
+                    <!-- Notifications Dropdown -->
+                    <div class="notifications-dropdown glass-card" id="notifications-dropdown" style="display: none;">
+                        <div class="notifications-header">
+                            <h4>Bildirimler</h4>
+                        </div>
+                        <div class="notifications-list" id="notifications-list">
+                            <div class="empty-state" style="padding: 1.5rem 1rem;">
+                                <p style="font-size: 0.9rem;">Bildirim yok</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <input type="file" id="file-picker" style="display: none;">
+            </header>
+
+            <div class="views-container">
+                <!-- Dashboard -->
+                <section id="dashboard-view" class="view-section active">
+                    <div class="stats-row">
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: #b54d4d;">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff"
+                                    stroke-width="2">
+                                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                                </svg>
+                            </div>
+                            <div class="stat-body">
+                                <span class="stat-label">Toplam Senkronize</span>
+                                <span class="stat-value" id="stat-synced">0 KB</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: #7a9178;">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff"
+                                    stroke-width="2">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                    <circle cx="9" cy="7" r="4" />
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                                </svg>
+                            </div>
+                            <div class="stat-body">
+                                <span class="stat-label">Eşleşmiş Cihazlar</span>
+                                <span class="stat-value" id="stat-peers">0</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: #c17f59;">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff"
+                                    stroke-width="2">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                                </svg>
+                            </div>
+                            <div class="stat-body">
+                                <span class="stat-label">Şifreleme</span>
+                                <span class="stat-value accent-green">AES-256-GCM</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-card glass-card">
+                        <div class="section-header">
+                            <h3>Aktif Transferler</h3>
+                            <span class="badge" id="transfer-count">0</span>
+                        </div>
+                        <div class="transfer-list" id="transfer-list">
+                            <div class="empty-state">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.5">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                    <polyline points="17 8 12 3 7 8" />
+                                    <line x1="12" y1="3" x2="12" y2="15" />
+                                </svg>
+                                <p>Henüz aktif transfer yok</p>
+                                <span>Cihaz Eşleştir sekmesinden bir cihaz ekleyip dosya gönderin</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Files -->
+                <section id="folders-view" class="view-section">
+                    <div class="section-card glass-card">
+                        <div class="section-header">
+                            <h3>Yerel Senkronize Dosyalar</h3>
+                            <span class="badge accent-green" id="file-count">0</span>
+                        </div>
+                        <div class="filter-bar">
+                            <select id="file-peer-filter" class="filter-select" onchange="renderFiles()">
+                                <option value="all">Tüm Kişiler</option>
+                            </select>
+                            <select id="file-type-filter" class="filter-select" onchange="renderFiles()">
+                                <option value="all">Tüm Dosyalar</option>
+                                <option value="image">Görseller</option>
+                                <option value="video">Videolar</option>
+                                <option value="document">Belgeler</option>
+                                <option value="archive">Arşivler</option>
+                                <option value="other">Diğer</option>
+                            </select>
+                        </div>
+                        <div class="transfer-list" id="files-list">
+                            <div class="empty-state">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.5">
+                                    <path
+                                        d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                                </svg>
+                                <p>Klasörde dosya yok</p>
+                                <span>Bir cihazdan dosya gönderildiğinde burada görünecek</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Peers -->
+                <section id="peers-view" class="view-section">
+                    <div class="section-card glass-card" style="margin-bottom: 1.5rem;">
+                        <div class="section-header">
+                            <h3>Cihaz Eşleştir</h3>
+                        </div>
+                        <p class="section-desc">Arkadaşının cihaz ID'sini girerek eşleştirme yapın. Sadece eşleştiğiniz
+                            cihazlarla dosya alışverişi yapabilirsiniz.</p>
+                        <div class="pair-form">
+                            <input type="text" id="pair-id-input" class="form-input"
+                                placeholder="#XXXX-XXXX formatında ID girin">
+                            <button class="btn-primary" onclick="doPair()">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                                </svg>
+                                Eşleştir
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="section-card glass-card">
+                        <div class="section-header">
+                            <h3>Eşleşmiş Cihazlar</h3>
+                            <span class="badge" id="peer-count">0</span>
+                        </div>
+                        <div class="transfer-list" id="peers-list">
+                            <div class="empty-state">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.5">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <line x1="2" y1="12" x2="22" y2="12" />
+                                    <path
+                                        d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                                </svg>
+                                <p>Henüz eşleşmiş cihaz yok</p>
+                                <span>Yukarıdaki kutuya arkadaşının ID'sini gir</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- History -->
+                <section id="history-view" class="view-section">
+                    <div class="section-card glass-card">
+                        <div class="section-header">
+                            <h3>Transfer Geçmişi</h3>
+                            <span class="badge" id="history-count">0</span>
+                        </div>
+                        <div class="filter-bar">
+                            <select id="history-peer-filter" class="filter-select" onchange="renderHistory()">
+                                <option value="all">Tüm Kişiler</option>
+                            </select>
+                            <select id="history-type-filter" class="filter-select" onchange="renderHistory()">
+                                <option value="all">Tüm Dosyalar</option>
+                                <option value="image">Görseller</option>
+                                <option value="video">Videolar</option>
+                                <option value="document">Belgeler</option>
+                                <option value="archive">Arşivler</option>
+                                <option value="other">Diğer</option>
+                            </select>
+                        </div>
+                        <div class="transfer-list" id="history-list">
+                            <div class="empty-state">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.5">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <polyline points="12 6 12 12 16 14" />
+                                </svg>
+                                <p>Henüz transfer geçmişi yok</p>
+                                <span>Dosya gönderip aldıkça burada listelenecek</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Settings -->
+                <section id="settings-view" class="view-section">
+                    <div class="section-card glass-card profile-card">
+                        <div class="profile-header">
+                            <div class="profile-avatar-lg" id="settings-avatar"
+                                style="position:relative; overflow:hidden;">?</div>
+                            <div class="profile-details">
+                                <h3 id="settings-name">Kullanıcı</h3>
+                                <span class="profile-id-badge" id="settings-id">#0000-0000</span>
+                                <input type="file" id="avatar-input" accept="image/png, image/jpeg"
+                                    style="display: none;" onchange="uploadAvatar(event)">
+                                <button class="avatar-upload-btn"
+                                    onclick="document.getElementById('avatar-input').click()">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                        <polyline points="17 8 12 3 7 8" />
+                                        <line x1="12" y1="3" x2="12" y2="15" />
+                                    </svg>
+                                    Fotoğraf Seç
+                                </button>
+                            </div>
+                        </div>
+                        <div class="profile-edit">
+                            <div class="input-group">
+                                <label>Görünen İsim</label>
+                                <input type="text" id="profile-name-input" class="form-input"
+                                    placeholder="Takma ad girin...">
+                            </div>
+                            <button class="btn-primary" onclick="updateProfile()">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                                    <polyline points="17 21 17 13 7 13 7 21" />
+                                    <polyline points="7 3 7 8 15 8" />
+                                </svg>
+                                Kaydet
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="section-card glass-card">
+                        <div class="section-header">
+                            <h3>Platform Bilgileri</h3>
+                        </div>
+                        <div class="settings-grid">
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <span class="setting-label">Şifreleme Protokolü</span>
+                                    <span class="setting-value">AES-256-GCM (Galois/Counter Mode)</span>
+                                </div>
+                                <span class="badge accent-green">Aktif</span>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <span class="setting-label">Peer Keşif Yöntemi</span>
+                                    <span class="setting-value">UDP Multicast + TCP LAN Sweep</span>
+                                </div>
+                                <span class="badge">Otomatik</span>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <span class="setting-label">Veri Bütünlüğü</span>
+                                    <span class="setting-value">Merkle Tree Hash Doğrulama</span>
+                                </div>
+                                <span class="badge accent-green">Aktif</span>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <span class="setting-label">Anahtar Türetme (KDF)</span>
+                                    <span class="setting-value">PBKDF2 — 100.000 İterasyon</span>
+                                </div>
+                                <span class="badge accent-green">Aktif</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
