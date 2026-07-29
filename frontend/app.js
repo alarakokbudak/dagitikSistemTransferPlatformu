@@ -312,7 +312,6 @@ async function doPair() {
         }
 
         const data = await res.json();
-        showToast(`Eşleştirme başarılı! ${data.peer.name}`);
         document.getElementById('pair-id-input').value = '';
 
         // Refresh profile to get updated pairedPeers
