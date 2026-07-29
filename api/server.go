@@ -399,12 +399,14 @@ func (s *APIServer) handleFiles(w http.ResponseWriter, r *http.Request) {
 		}
 		info, err := entry.Info()
 		if err == nil {
-			files = append(files, FileInfo{
-				Name:     info.Name(),
-				Size:     info.Size(),
-				ModTime:  info.ModTime().Format("2006-01-02 15:04:05"),
-				PeerName: fileToPeer[info.Name()],
-			})
+			if peerName, exists := fileToPeer[info.Name()]; exists {
+				files = append(files, FileInfo{
+					Name:     info.Name(),
+					Size:     info.Size(),
+					ModTime:  info.ModTime().Format("2006-01-02 15:04:05"),
+					PeerName: peerName,
+				})
+			}
 		}
 	}
 
